@@ -6,7 +6,7 @@ Det er forståeligt, hvis man selv vil compile koden, og helt klart også bedst 
 
 *Jeg ved kun, hvordan man gør dette for Windows og Linux systemer, hvis du har mac og kan finde ud af det, så lav venligst en PR.*
 
-**Du skal have python 3.8 eller højere** (Jeg ved ikke hvor langt ned i python versioner dette script kan klare)
+**Du skal have python 3.8 eller højere** (Jeg ved ikke hvor langt ned i python versioner dette script kan klare)  
 For at compile selv skal du hente al kode ned på din egen computer. Hvis du har git installeret, kan du bruge følgende kommando:
 
 ```
