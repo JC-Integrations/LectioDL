@@ -1,5 +1,5 @@
 # LectioDL
-LectioDL eller Lectio Downloader, er et program udviklet til at downloade alle dine dokumenter fra lectio. Evt. inden en eksamen, terminsprøve eller inden du dimitterer. Lavet af en gymnasie elev der har/havde samme problem. Jeg er på nuværende tidspunkt i slutningen af 3. g, så jeg vil ikke have brug for funktionen mere, men nogle andre kan måske få lidt glæde af det.
+LectioDL eller Lectio Downloader, er et program udviklet til at downloade alle dine dokumenter fra lectio. Evt. inden en eksamen, terminsprøve eller inden du dimitterer. Jeg er på nuværende tidspunkt i slutningen af 3. g, så jeg vil ikke have brug for funktionen mere, men nogle andre kan måske få lidt glæde af det.
 
 ### [Download LectioDL](https://github.com/JC-Integrations/LectioDL/ 'Klik her for at downloade den nyeste version af LectioDL')
 
