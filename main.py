@@ -36,7 +36,7 @@ def download_documents(session, documents_url:str, folder_id:str, path:str):
     if not exists(path):
         makedirs(path)
     with session.get(url=f"{documents_url}&folderid={folder_id}", stream=True) as resp:
-        soup = bs(resp.content, "lxml")
+        soup = bs(resp.content, "html.parser")
         table_of_files = soup.find("div", {"id": "printfoldercontent"})
         table_of_files = table_of_files.find("table")
         table_elements = table_of_files.find_all("tr")
@@ -61,7 +61,7 @@ def get_documents(username:str, password:str, school_id:int, download_activities
     session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"})
     login_url = f"https://www.lectio.dk/lectio/{school_id}/login.aspx"
     resp = session.get(url=login_url)
-    soup = bs(resp.content, "lxml")
+    soup = bs(resp.content, "html.parser")
     event_validation = soup.find_all("input", {"id": "__EVENTVALIDATION"})[0]["value"]
     try:
         school = soup.find_all("td", {"id": "m_Content_schoolnametd"})[0].getText()
@@ -78,7 +78,7 @@ def get_documents(username:str, password:str, school_id:int, download_activities
     resp = session.post(url=login_url, data=form_data)
     if any(error_text in resp.text for error_text in ["Fejl i Brugernavn og/eller adgangskode", "Der er ikke oprettet en adgangskode til dette login"]):
         throw_error("Login fejlede, tjek om brugernavn, kodeord og skole ID er korrekt.")
-    soup = bs(resp.content, "lxml")
+    soup = bs(resp.content, "html.parser")
     name = soup.find_all("div", {"id": "s_m_HeaderContent_MainTitle"})[0].string.split(" ", 1)[1].split(",")[0]
     print(Fore.GREEN + "Logget ind som:")
     print(Fore.GREEN + "Elev:", name)
@@ -86,7 +86,7 @@ def get_documents(username:str, password:str, school_id:int, download_activities
     documents_url = "https://www.lectio.dk" + soup.find_all("a", {"id": "s_m_HeaderContent_subnavigator_ctl09"})[0]["href"]
     student_id = documents_url.split("elevid=")[1].split("&")[0]
     resp = session.get(url=documents_url)
-    soup = bs(resp.content, "lxml")
+    soup = bs(resp.content, "html.parser")
     options = soup.find("select", {"id": "s_m_ChooseTerm_term"})
     options = [int(option["value"]) for option in options.find_all("option")]
     terms = options[::-1]
@@ -115,7 +115,7 @@ def get_documents(username:str, password:str, school_id:int, download_activities
                     continue
             else:
                 break
-        soup = bs(resp.content, "lxml")
+        soup = bs(resp.content, "html.parser")
         treenode = soup.find("div", {"lec-node-id": "S"+student_id+"__2"})
         subjects_div = treenode.find("div", {"lec-role": "ltv-sublist"})
         subjects = subjects_div.find_all("div", {"lec-role": "treeviewnodecontainer"}, recursive=False)
