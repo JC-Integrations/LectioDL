@@ -11,7 +11,7 @@ Vær opmærksom på at det kan tage noget tid at hente alt ned. Udover at downlo
 [Main.py](https://github.com/JC-Integrations/LectioDL/blob/main/main.py) indeholder alt kode som programmet består af. Hvis du vil køre den direkte skal du installere de dependencies der er i [requirements.txt](https://github.com/JC-Integrations/LectioDL/blob/main/requirements.txt). For at køre scriptet kræver det python 3.8 eller højere (de versioner jeg har testet).
 
 ## Hvis du selv vil compile koden
-Det er forståeligt, hvis man selv vil compile koden, og helt klart også bedst at gøre det selv for sikkerhedens skyld. Hvem ved, jeg kunne i princippet have smidt noget kode ind der sender dine login oplysninger til min egen webserver (Det har jeg ikke, men i kan se pointen).
+Det er forståeligt, hvis man selv vil "compile" koden, og helt klart også bedst at gøre det selv for sikkerhedens skyld. Hvem ved, jeg kunne i princippet have smidt noget kode ind der sender dine login oplysninger til min egen webserver (Det har jeg ikke, men i kan se pointen).
 
 *Jeg ved kun, hvordan man gør dette for Windows og Linux systemer, hvis du har mac og kan finde ud af det, så lav venligst en PR.*
 
