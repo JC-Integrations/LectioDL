@@ -27,7 +27,7 @@ Herefter, hvis du vil compile koden ned til en exe. Så skal du først installer
 pip install -r requirements.txt
 ```
 
-Nu kan du køre `compiler.py`, der laver selve exe filen:
+Nu kan du køre [`compiler.py`](https://github.com/JC-Integrations/LectioDL/blob/main/compiler.py), der laver selve exe filen:
 ```
 python compiler.py
 ```
