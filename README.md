@@ -1,7 +1,7 @@
 # LectioDL
 LectioDL eller Lectio Downloader, er et program udviklet til at downloade alle dine dokumenter fra lectio. Evt. inden en eksamen, terminsprøve eller inden du dimitterer. Jeg er på nuværende tidspunkt i slutningen af 3. g, så jeg vil ikke have brug for funktionen mere, men nogle andre kan måske få lidt glæde af det.
 
-### [Download LectioDL](https://github.com/JC-Integrations/LectioDL/releases/download/1.0/LectioDL.exe 'Klik her for at downloade den nyeste version af LectioDL')
+### [Download LectioDL (Windows)](https://github.com/JC-Integrations/LectioDL/releases/download/1.0/LectioDL.exe 'Klik her for at downloade den nyeste version af LectioDL')
 
 ## Hvis du vil køre scriptet direkte
 [Main.py](https://github.com/JC-Integrations/LectioDL/blob/main/main.py) indeholder alt kode som programmet består af. Hvis du vil køre den direkte skal du installere de dependencies der er i [requirements.txt](https://github.com/JC-Integrations/LectioDL/blob/main/requirements.txt). For at køre scriptet kræver det python 3.8 eller højere (de versioner jeg har testet).
