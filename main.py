@@ -17,8 +17,7 @@ def throw_error(text:str):
         if try_again.lower() == "ja" or try_again.lower() == "nej":
             if try_again.lower() == "ja":
                 print(Style.RESET_ALL)
-                main()
-                break
+                return main()
             else:
                 sys_exit()
         else:
@@ -54,6 +53,52 @@ def download_documents(session, documents_url:str, folder_id:str, path:str):
             except Exception as e:
                 #print(e)
                 continue
+
+def translate_subject_name(subject_name):
+    subjects = {
+        "fy": "Fysik",
+        "ng": "Naturgeografi",
+        "id": "Idræt",
+        "da": "Dansk",
+        "hi": "Historie",
+        "ma": "Matematik",
+        "ol": "Oldtidskundskab",
+        "re": "Religion",
+        "st": "Statistik",
+        "en": "Engelsk",
+        "ke": "Kemi",
+        "tyb": "Tysk",
+        "tyf": "Tysk",
+        "me": "Mediefag",
+        "ap": "Almen sprogforståelse",
+        "nv": "Naturvidenskab",
+        "sa": "Samfundsfag",
+        "if": "Informatik",
+        "as": "Astronomi",
+        "bi": "Biologi",
+        "bk": "Billedkunst",
+        "bt": "Bioteknologi",
+        "dr": "Dramatik",
+        "eø": "Erhvervsøkonomi",
+        "fi": "Filosofi",
+        "fr": "Fransk",
+        "frb": "Fransk",
+        "frf": "Fransk",
+        "it": "Italiensk",
+        "ki": "Kinesisk",
+        "la": "Latin",
+        "mu": "Musik",
+        "ps": "Psykologi",
+        "sp": "Spansk",
+    }
+    subject = subject_name.split(" ")[1].lower()
+    if subjects.get(subject[:-1]) != None:
+        return subjects[subject[:-1]]
+    if subjects.get(subject) != None:
+        return subjects[subject]
+    if len(subject) > 3:
+        return subject.capitalize()
+    return subject_name
 
 def get_documents(username:str, password:str, school_id:int, download_activities:bool):
     # Login
@@ -122,6 +167,7 @@ def get_documents(username:str, password:str, school_id:int, download_activities
         for subject in subjects:
             #subject_id = subject["lec-node-id"]
             subject_name = subject.find("div", {"class": "TreeNode-title"}).string
+            subject_name = translate_subject_name(subject_name)
             sublist = subject.find("div", {"lec-role": "ltv-sublist"})
             sublist_trees = sublist.find_all("div", {"lec-role": "treeviewnodecontainer"}, recursive=False)
 
