@@ -9,7 +9,14 @@ from bs4 import BeautifulSoup as bs
 from colorama import init, Fore, Style, Back
 init(autoreset=True)
 
+
+
 def throw_error(text:str):
+    """Show error to end user
+
+    Args:
+        text (str): The error text to show
+    """
     print("\n" + Back.RED + "FEJL")
     print(Fore.RED + text + "\n")
     while 1:
@@ -23,10 +30,23 @@ def throw_error(text:str):
         else:
             print(Fore.RED + "Du skal svare med ja eller nej.")
 
-def documents_in_folder(session, folder_url):
+
+
+def documents_in_folder(session, folder_url:str):
+    """Check if there are any documents in a given folder
+
+    Args:
+        session (Session): A logged in requests session
+        folder_url (str): The URL of the folder to check
+
+    Returns:
+        bool: Whether or not there are files in the folder
+    """
     sleep(1)
     resp = session.get(url=folder_url)
     return "Der kan ikke lægges dokumenter i denne mappe." not in resp.text and "Ingen tilgængelige dokumenter i mappen." not in resp.text
+
+
 
 def download_documents(session, documents_url:str, folder_id:str, path:str):
     # Check if the folder has files, otherwise ignore
@@ -54,7 +74,17 @@ def download_documents(session, documents_url:str, folder_id:str, path:str):
                 #print(e)
                 continue
 
-def translate_subject_name(subject_name):
+
+
+def translate_subject_name(subject_name:str):
+    """Translates subject abbreviation
+
+    Args:
+        subject_name (str): The subject abbreviation
+
+    Returns:
+        str: Either the translated abbreviation or the original subject name if failed to translate
+    """
     subjects = {
         "fy": "Fysik",
         "ng": "Naturgeografi",
@@ -100,9 +130,21 @@ def translate_subject_name(subject_name):
         return subject.capitalize()
     return subject_name
 
-def get_documents(username:str, password:str, school_id:int, download_activities:bool):
-    # Login
-    session = requestsSession()
+
+
+def login(session, username:str, password:str, school_id:int):
+    """Logs into Lectio
+
+    Args:
+        session (Session): A logged in requests session
+        username (str): Lectio username
+        password (str): Lectio password
+        school_id (int): School ID
+
+    Returns:
+        Session: The logged in requests session
+        str: The URL to the documents tab
+    """
     session.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"})
     login_url = f"https://www.lectio.dk/lectio/{school_id}/login.aspx"
     resp = session.get(url=login_url)
@@ -129,6 +171,47 @@ def get_documents(username:str, password:str, school_id:int, download_activities
     print(Fore.GREEN + "Elev:", name)
     print(Fore.GREEN + "Skole:", school+"\n")
     documents_url = "https://www.lectio.dk" + soup.find_all("a", {"id": "s_m_HeaderContent_subnavigator_ctl09"})[0]["href"]
+    return session, documents_url
+
+
+
+def download_documents_in_subject_folder(session, subject, download_activities:bool, documents_url:str, term:int):
+    """Downloads all folders and documents in a given subject"""
+    subject_name = subject.find("div", {"class": "TreeNode-title"}).string
+    subject_name = translate_subject_name(subject_name)
+    sublist = subject.find("div", {"lec-role": "ltv-sublist"})
+    sublist_trees = sublist.find_all("div", {"lec-role": "treeviewnodecontainer"}, recursive=False)
+
+    for folder in sublist_trees:
+        folder_name = folder.find("div", {"class": "TreeNode-title"}).string
+        folder_id = folder["lec-node-id"]
+        if folder_name == "Aktiviteter" and not download_activities:
+            continue
+
+        # Now it's getting dirty, leave a PR if you have an easier and more elegant way to do this
+        # Very messy, 2 girls 1 cup style
+        sub_folders_in_folder = folder.find_all("div", {"lec-role": "treeviewnodecontainer"})
+        if sub_folders_in_folder:
+            download_documents(session, documents_url, folder_id, f"./LectioDownloads/{term}/{subject_name}/{folder_name}")
+            for sub_folders in sub_folders_in_folder:
+                sub_folder_name = sub_folders.find("div", {"class": "TreeNode-title"}).string
+                sub_folder_id = sub_folders["lec-node-id"]
+                sub_sub_folders_in_folder = sub_folders.find_all("div", {"lec-role": "treeviewnodecontainer"})
+                if sub_sub_folders_in_folder:
+                    download_documents(session, documents_url, sub_folder_id, f"./LectioDownloads/{term}/{subject_name}/{folder_name}/{sub_folder_name}")
+                    for sub_sub_folders in sub_sub_folders_in_folder:
+                        sub_sub_folder_name = sub_sub_folders.find("div", {"class": "TreeNode-title"}).string
+                        sub_sub_folder_id = sub_sub_folders["lec-node-id"]
+                        download_documents(session, documents_url, sub_sub_folder_id, f"./LectioDownloads/{term}/{subject_name}/{folder_name}/{sub_folder_name}/{sub_sub_folder_name}")
+                else:
+                    download_documents(session, documents_url, sub_folder_id, f"./LectioDownloads/{term}/{subject_name}/{folder_name}/{sub_folder_name}")
+        else:
+            download_documents(session, documents_url, folder_id, f"./LectioDownloads/{term}/{subject_name}/{folder_name}")
+
+
+
+def get_documents(username:str, password:str, school_id:int, download_activities:bool):
+    session, documents_url = login(requestsSession(), username, password, school_id)
     student_id = documents_url.split("elevid=")[1].split("&")[0]
     resp = session.get(url=documents_url)
     soup = bs(resp.content, "html.parser")
@@ -149,10 +232,10 @@ def get_documents(username:str, password:str, school_id:int, download_activities
             "s$m$ChooseTerm$term": terms[n],
             "__VIEWSTATEX": viewstatex,
         }
-        for x in range(0,16):
+        for x in range(0,4):
             resp = session.post(url=documents_url + f"&folderid=S{student_id}__2", data=form_data)
             if "Der opstod en ukendt fejl" in resp.text:
-                if x == 15:
+                if x == 3:
                     throw_error("En ukendt fejl opstod ved download.")
                 else:
                     print(Fore.RED + "FEJL: Fildownload fejlede. Venter 25 sekunder og prøver igen...")
@@ -165,52 +248,22 @@ def get_documents(username:str, password:str, school_id:int, download_activities
         subjects_div = treenode.find("div", {"lec-role": "ltv-sublist"})
         subjects = subjects_div.find_all("div", {"lec-role": "treeviewnodecontainer"}, recursive=False)
         for subject in subjects:
-            #subject_id = subject["lec-node-id"]
-            subject_name = subject.find("div", {"class": "TreeNode-title"}).string
-            subject_name = translate_subject_name(subject_name)
-            sublist = subject.find("div", {"lec-role": "ltv-sublist"})
-            sublist_trees = sublist.find_all("div", {"lec-role": "treeviewnodecontainer"}, recursive=False)
-
-            for folder in sublist_trees:
-                folder_name = folder.find("div", {"class": "TreeNode-title"}).string
-                folder_id = folder["lec-node-id"]
-                if folder_name == "Aktiviteter" and not download_activities:
-                    continue
-
-                # Now it's getting dirty, leave a PR if you have an easier and more elegant way to do this
-                # Very messy, 2 girls 1 cup style
-                sub_folders_in_folder = folder.find_all("div", {"lec-role": "treeviewnodecontainer"})
-                if sub_folders_in_folder:
-                    download_documents(session, documents_url, folder_id, f"./LectioDownloads/{terms[n]}/{subject_name}/{folder_name}")
-                    for sub_folders in sub_folders_in_folder:
-                        sub_folder_name = sub_folders.find("div", {"class": "TreeNode-title"}).string
-                        sub_folder_id = sub_folders["lec-node-id"]
-                        sub_sub_folders_in_folder = sub_folders.find_all("div", {"lec-role": "treeviewnodecontainer"})
-                        if sub_sub_folders_in_folder:
-                            download_documents(session, documents_url, sub_folder_id, f"./LectioDownloads/{terms[n]}/{subject_name}/{folder_name}/{sub_folder_name}")
-                            for sub_sub_folders in sub_sub_folders_in_folder:
-                                sub_sub_folder_name = sub_sub_folders.find("div", {"class": "TreeNode-title"}).string
-                                sub_sub_folder_id = sub_sub_folders["lec-node-id"]
-                                download_documents(session, documents_url, sub_sub_folder_id, f"./LectioDownloads/{terms[n]}/{subject_name}/{folder_name}/{sub_folder_name}/{sub_sub_folder_name}")
-                        else:
-                            download_documents(session, documents_url, sub_folder_id, f"./LectioDownloads/{terms[n]}/{subject_name}/{folder_name}/{sub_folder_name}")
-                else:
-                    download_documents(session, documents_url, folder_id, f"./LectioDownloads/{terms[n]}/{subject_name}/{folder_name}")
+            download_documents_in_subject_folder(session, subject, download_activities, documents_url, terms[n])
 
     input(Fore.GREEN + "Alle dokumenter er nu blevet downloaded! Filerne ligger inde i mappen \"LectioDownloads\". Ved at trykke på Enter, lukker du dette vindue.\nTak fordi du brugte dette program, jeg håber det virkede for dig og sparede dig en manuelt arbejde.")
     sys_exit()
 
-def main():
-    if os_name() == "Windows":
-        system("cls")
-    else:
-        system("clear")
-    try:
-        splash_text = get(url="https://raw.githubusercontent.com/JC-Integrations/LectioDL/main/splash.txt")
-    except (ConnectionError, Timeout) as exception:
-        throw_error("Der er ikke forbindelse til internettet.")
 
-    print(Fore.MAGENTA + splash_text.text + "\n")
+
+def get_all_inputs():
+    """Requests all inputs and returns them all
+
+    Returns:
+        str: Lectio username
+        str: Lectio password
+        int: School ID
+        bool: Whether or not to download activity documents
+    """
     print(Fore.GREEN + "Nu skal du logge ind med samme oplysninger som du bruger til at logge ind på Lectio:\n")
     while 1:
         username = input("Brugernavn: ")
@@ -223,6 +276,8 @@ def main():
         if password == "":
             print(Fore.RED + "Du skal udfylde dette felt.")
         else:
+            # \033[1A is used to start at the line above to censor password.
+            print(f"\033[1AKodeord: {'*' * len(password)}")
             break
     print(Fore.GREEN + "\nFor at finde dit skole ID, skal du gå ind på Lectio og vælge din skole på login siden. Når den er valgt kan du se linket i toppen af din browser, her står dit skole ID, se eksemplet nedenunder.")
     print(Fore.GREEN + "https://www.lectio.dk/lectio/" + Back.RED + "93" + Style.RESET_ALL + Fore.GREEN + "/default.aspx")
@@ -246,8 +301,26 @@ def main():
         else:
             print(Fore.RED + "Du skal svare med ja eller nej.")
     print()
+    return username, password, school_id, download_activities
+
+
+
+def main():
+    if os_name() == "Windows":
+        system("cls")
+    else:
+        system("clear")
+    try:
+        splash_text = get(url="https://raw.githubusercontent.com/JC-Integrations/LectioDL/main/splash.txt")
+    except (ConnectionError, Timeout) as exception:
+        throw_error("Der er ikke forbindelse til internettet.")
+
+    print(Fore.MAGENTA + splash_text.text + "\n")
+    username, password, school_id, download_activities = get_all_inputs()
 
     get_documents(username, password, school_id, download_activities)
+
+
 
 if __name__ == "__main__":
     main()
