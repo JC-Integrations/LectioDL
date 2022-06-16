@@ -6,7 +6,7 @@
 |     |_____\___|\___|\__|_|\___/|____/|_____|     |
 |                                                  |
 |                                                  |
-|       Lavet af: Jasper // https://jazper.dk      |
+|       Lavet af: Jasper | https://jazper.dk       |
 |         Github: https://github.com/j4asper       |
 |                                                  |
 |                     Source:                      |
