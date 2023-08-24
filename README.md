@@ -1,3 +1,7 @@
+# Virker ikke længere
+
+Grundet jeg ikke har noget login til Lectio mere, og ændringer på deres side, kan jeg ikke længere vedligeholde dette projekt.
+
 # LectioDL
 LectioDL eller Lectio Downloader, er et program udviklet til at downloade alle dine dokumenter fra lectio. Evt. inden en eksamen, terminsprøve eller inden du dimitterer. Jeg er på nuværende tidspunkt i slutningen af 3. g, så jeg vil ikke have brug for funktionen mere, men nogle andre kan måske få lidt glæde af det.  
 Vær opmærksom på at det kan tage noget tid at hente alt ned. Udover at downloade dokumenterne er der også en lille cooldown mellem forskellige elementer for at undgå at du bliver IP banned på Lectios side. Programmet er 100% sikkert at bruge, selv hvis du skulle blive IP banned plejer det typisk kun at vare 10-15 minutter.
